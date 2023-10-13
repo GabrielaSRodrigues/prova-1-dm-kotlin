@@ -12,6 +12,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import android.os.Environment  
+import java.io.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var buttonListarSuper : Button
     lateinit var buttonListarPosto : Button
     lateinit var buttonListarCinema : Button
+    lateinit var buttonSalvarFiles : Button
+    lateinit var buttonMostrarFiles : Button
 
     var listaSupermercado = ArrayList<Supermercado>()
     var listaPosto = ArrayList<Posto>()
@@ -31,9 +35,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var editTextCapacidade: EditText
 
     lateinit var textViewAr : TextView
+    lateinit var textViewMostrar : TextView
 
     lateinit var radioGroupClasses: RadioGroup
     lateinit var radioGroupClassMercado: RadioGroup
+
+    lateinit var pathFiles : String   // caminho dos arquivos
+    lateinit var fileCinema : File
+    lateinit var fileSupermercado : File
+    lateinit var filePosto : File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +53,8 @@ class MainActivity : AppCompatActivity() {
         buttonListarSuper = findViewById(R.id.buttonListaSuper)
         buttonListarPosto = findViewById(R.id.buttonListaPosto)
         buttonListarCinema = findViewById(R.id.buttonListaCinema)
+	buttonSalvarFiles = findViewById(R.id.buttonSalvarDados)
+	buttonMostrarFiles = findViewById(R.id.buttonMostrarFiles)
         editTextNome = findViewById(R.id.editNome)
         editTextCnpj = findViewById(R.id.editCnpj)
         editTextCaixa = findViewById(R.id.editCaixa)
@@ -52,7 +64,8 @@ class MainActivity : AppCompatActivity() {
         editTextCapacidade = findViewById(R.id.editTextCapacidade)
 
         textViewAr = findViewById(R.id.textViewAr)
-
+	textViewMostrar = findViewById(R.id.textViewArquivos)
+	pathFiles = "arquivos"
         val intent = intent
 
         radioGroupClasses.setOnCheckedChangeListener { radioGroup, i ->
@@ -200,9 +213,98 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+	buttonSalvarFile.setOnClickListener{
+		fileCinema= File(getExternalFilesDir(pathFiles), "cinemas.txt")
+		fileSupermercado= File(getExternalFilesDir(pathFiles), "supermercados.txt")
+		filePosto= File(getExternalFilesDir(pathFiles), "postos-gasolina.txt")
+		
+		for(cinema in listaCinema){
+		try{
+		val fileOutPutStream = FileOutputStream(fileCinema)  
+                fileOutPutStream.write(cinema.toString().toByteArray())  
+                fileOutPutStream.close()
 
+		}catch(e: IOException){
+		    e.printStackTrace()  
+		}
+		Toast.makeText(applicationContext,"Cinema Salvo!",Toast.LENGTH_SHORT).show() 
+    		}
+	
+		for(posto in listaPosto){
+		   try{
+		   val fileOutPutStream = FileOutputStream(filePosto)  
+                   fileOutPutStream.write(posto.toString().toByteArray())  
+                   fileOutPutStream.close()
 
-    }
+		}catch(e: IOException){
+		    e.printStackTrace()  
+		}
+	       Toast.makeText(applicationContext,"Posto Salvo!",Toast.LENGTH_SHORT).show() 
+    	       }
+
+		for(mercado in listaSupermercado){
+		  try{
+		   val fileOutPutStream = FileOutputStream(fileSupermercado)  
+                   fileOutPutStream.write(mercado.toString().toByteArray())  
+                   fileOutPutStream.close()
+
+		}catch(e: IOException){
+		    e.printStackTrace()  
+		}
+		Toast.makeText(applicationContext,"Supermercado Salvo!",Toast.LENGTH_SHORT).show() 
+    		}
+}
+	
+	buttonMostrarFiles.setOnClickListener(){
+	   	val filenamePosto = "postos-gasolina.txt"
+           	val fileNameCinema = "cinemas.txt"
+	   	val fileNameMercado = "supermercado.txt"
+		 myExternalFileCinemas = File(getExternalFilesDir(pathFile), filenameCinema.text.toString())  
+  		 myExternalFileCinemas = File(getExternalFilesDir(pathFile), filenamePosto.text.toString()) 
+		 myExternalFilePostos = File(getExternalFilesDir(pathFile), filenameMercado.text.toString()) 
+          
+          	textViewMostrar.setVisibility(View.VISIBLE) 
+           	if(filenameCinema.toString()!=null && filenameCinema.toString().trim()!=""){  
+              	    var fileInputStream = FileInputStream(myExternalFileCinemas)  
+                    var inputStreamReader: InputStreamReader = InputStreamReader(fileInputStream)  
+                    val bufferedReader: BufferedReader = BufferedReader(inputStreamReader)  
+                    val stringBuilder: StringBuilder = StringBuilder()  
+                    var text: String? = null
+
+                    while ({ text = bufferedReader.readLine(); text }() != null) {  
+                        stringBuilder.append(text)  
+                    }  
+               	    fileInputStream.close()  
+             	// Mostrar arquivos no TextView
+                   texViewMostrar.show(stringBuilder.toString)  
+           	}
+	       if(filenameMercado.toString()!=null && filenameMercado.toString().trim()!=""){  
+               	  var fileInputStream = FileInputStream(myExternalFileMercados)  
+                  var inputStreamReader: InputStreamReader = InputStreamReader(fileInputStream)  
+                  val bufferedReader: BufferedReader = BufferedReader(inputStreamReader)  
+                  val stringBuilder: StringBuilder = StringBuilder()  
+                  var text: String? = null  
+                  while ({ text = bufferedReader.readLine(); text }() != null) {  
+                     stringBuilder.append(text)  
+                  }  
+                  fileInputStream.close()  
+               // Mostrar arquivos no TextView
+                  texViewMostrar.show(stringBuilder.toString)  
+           } 
+	     if(filenamePosto.toString()!=null && filenamePosto.toString().trim()!=""){  
+                var fileInputStream = FileInputStream(myExternalFilePostos)  
+                var inputStreamReader: InputStreamReader = InputStreamReader(fileInputStream)  
+                val bufferedReader: BufferedReader = BufferedReader(inputStreamReader)  
+                val stringBuilder: StringBuilder = StringBuilder()  
+                var text: String? = null  
+                while ({ text = bufferedReader.readLine(); text }() != null) {  
+                   stringBuilder.append(text)  
+               }  
+               fileInputStream.close()  
+               // Mostrar arquivos no TextView
+               texViewMostrar.show(stringBuilder.toString)  
+           }    	
+}
 
 
 

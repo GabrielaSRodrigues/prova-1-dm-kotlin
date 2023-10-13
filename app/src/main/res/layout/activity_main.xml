@@ -148,6 +148,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="lista de cinemas" />
+	   <Button
+                android:id="@+id/buttonSalvarDados"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Salvar Dados" />
+	  <Button
+                android:id="@+id/buttonMostrarFile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mostrar Arquivos" />
+	<TextView
+		android:id="@+id/textViewArquivos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
 
