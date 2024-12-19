@@ -1,7 +1,7 @@
 package com.example.p1
 
+import Empresa
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,6 +12,21 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStream
+import java.io.OutputStreamWriter
+import java.lang.reflect.GenericArrayType
+import java.util.Objects
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,10 +34,12 @@ class MainActivity : AppCompatActivity() {
     lateinit var buttonListarSuper : Button
     lateinit var buttonListarPosto : Button
     lateinit var buttonListarCinema : Button
+    lateinit var buttonSaveFiles : Button
+    lateinit var buttonShowFiles : Button
 
-    var listaSupermercado = ArrayList<Supermercado>()
-    var listaPosto = ArrayList<Posto>()
-    var listaCinema = ArrayList<Cinema>()
+    lateinit var listaSupermercado :ArrayList<Supermercado>
+    lateinit var listaPosto :ArrayList<Posto>
+    lateinit var listaCinema : ArrayList<Cinema>
 
     lateinit var editTextNome: EditText
     lateinit var editTextCnpj: EditText
@@ -31,9 +48,14 @@ class MainActivity : AppCompatActivity() {
     lateinit var editTextCapacidade: EditText
 
     lateinit var textViewAr : TextView
+    lateinit var textViewFiles : TextView
 
     lateinit var radioGroupClasses: RadioGroup
     lateinit var radioGroupClassMercado: RadioGroup
+
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +65,8 @@ class MainActivity : AppCompatActivity() {
         buttonListarSuper = findViewById(R.id.buttonListaSuper)
         buttonListarPosto = findViewById(R.id.buttonListaPosto)
         buttonListarCinema = findViewById(R.id.buttonListaCinema)
+        buttonSaveFiles = findViewById(R.id.buttonSaveFiles)
+        buttonShowFiles = findViewById(R.id.buttonMostrarArquivos)
         editTextNome = findViewById(R.id.editNome)
         editTextCnpj = findViewById(R.id.editCnpj)
         editTextCaixa = findViewById(R.id.editCaixa)
@@ -51,8 +75,12 @@ class MainActivity : AppCompatActivity() {
         editTextAssento = findViewById(R.id.editTextAssento)
         editTextCapacidade = findViewById(R.id.editTextCapacidade)
 
-        textViewAr = findViewById(R.id.textViewAr)
+        textViewAr = findViewById(R.id.textViewAr);
+        textViewFiles = findViewById(R.id.tvFiles);
 
+        listaCinema = ArrayList<Cinema>();
+        listaPosto = ArrayList<Posto>();
+        listaSupermercado = ArrayList<Supermercado>();
         val intent = intent
 
         radioGroupClasses.setOnCheckedChangeListener { radioGroup, i ->
@@ -111,6 +139,8 @@ class MainActivity : AppCompatActivity() {
 
         buttonInserir.setOnClickListener {
 
+
+
             val cpfExisteEmSupermercado = listaSupermercado.any { it.CNPJ == editTextCnpj.text.toString() }
             val cpfExisteEmPosto = listaPosto.any { it.CNPJ == editTextCnpj.text.toString() }
             val cpfExisteEmCinema = listaCinema.any { it.CNPJ == editTextCnpj.text.toString() }
@@ -150,15 +180,11 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "cnpj ja existente" , Toast.LENGTH_SHORT).show()
             }
 
-
-
-
-
-
-
         }
 
         buttonListarPosto.setOnClickListener {
+
+
             val bundle = Bundle()
             bundle.putParcelableArrayList("postos", listaPosto)
 
@@ -173,6 +199,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         buttonListarSuper.setOnClickListener {
+
+
             val bundle = Bundle()
             bundle.putParcelableArrayList("supermercados", listaSupermercado)
 
@@ -188,6 +216,7 @@ class MainActivity : AppCompatActivity() {
 
         buttonListarCinema.setOnClickListener {
 
+
             val bundle = Bundle()
             bundle.putParcelableArrayList("Cinemas", listaCinema)
 
@@ -201,6 +230,122 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        buttonSaveFiles.setOnClickListener(){
+            var ListasSet : Listas = Listas(listaCinema, listaPosto, listaSupermercado)
+            val fileNameCinema : String = "cinemas.txt"
+            val fileNamePosto: String = "posto-gasolina.txt"
+            val fileNameSupermercado : String = "supermercados.txt"
+            writeFiles(fileNameCinema, ListasSet)
+            writeFiles(fileNamePosto, ListasSet)
+            writeFiles(fileNameSupermercado, ListasSet)
+
+
+        }
+
+        buttonShowFiles.setOnClickListener(){
+            try {
+
+                var texto : String = ""
+                File("cinemas.txt").forEachLine { linha ->
+
+                }
+                File("posto-gasolina.txt").forEachLine { linha ->
+                    texto+= linha
+                }
+                File("supermercados.txt").forEachLine { linha ->
+                    texto+= linha
+                }
+                textViewFiles.setText(texto)
+               /* val bundle = Bundle()
+                bundle.putString("texto", texto)
+                /*val intent = Intent(this, SupermercadoActivity::class.java)
+                intent.putExtras(bundle)
+                startActivity(intent)*/
+                Intent(this, String::class.java).let {
+                    it.putExtras(bundle)
+                    register.launch(it)
+                }*/
+            } catch (e: FileNotFoundException) {
+                println("Falha ao ler o arquivo");
+                e.printStackTrace();
+            }
+
+
+
+
+
+
+        }
+
+
+    }
+    fun writeFiles(tipo : String, listas : Listas){
+
+        when(tipo){
+            "cinemas.txt" ->
+                try {
+                    var arquivo: OutputStream = openFileOutput(tipo, 0)
+
+                    var osw: OutputStreamWriter = OutputStreamWriter(arquivo)
+                    var bw: BufferedWriter = BufferedWriter(osw)
+                    var texto: String = ""
+                    for (empresa in listas.cinemas) {
+                        texto += empresa.toString()
+                        texto += "\n"
+                    }
+                    bw.write(texto)
+                    bw.close()
+                    Toast.makeText(this,"gravou o cinema", Toast.LENGTH_LONG).show()
+
+                }catch(e : IOException){
+                    Toast.makeText(this,"erro:" + e.toString(), Toast.LENGTH_LONG).show()
+                }catch(e : FileNotFoundException){
+                    Toast.makeText(this,"erro:" + e.toString(), Toast.LENGTH_LONG).show()
+                }
+
+            "posto-gasolina.txt" ->
+                try {
+                    var arquivo: OutputStream = openFileOutput(tipo, 0)
+
+                    var osw: OutputStreamWriter = OutputStreamWriter(arquivo)
+                    var bw: BufferedWriter = BufferedWriter(osw)
+                    var texto: String = ""
+                    for (empresa in listas.postos) {
+                        texto += empresa.toString()
+                        texto += "\n"
+                    }
+                    bw.write(texto)
+                    bw.close()
+                    Toast.makeText(this,"gravou o posto", Toast.LENGTH_LONG).show()
+
+                }catch(e : IOException){
+                    Toast.makeText(this,"erro:" + e.toString(), Toast.LENGTH_LONG).show()
+                }catch(e : FileNotFoundException){
+                    Toast.makeText(this,"erro:" + e.toString(), Toast.LENGTH_LONG).show()
+                }
+
+            "supermercados.txt" ->
+                try {
+                    var arquivo: OutputStream = openFileOutput(tipo, 0)
+
+                    var osw: OutputStreamWriter = OutputStreamWriter(arquivo)
+                    var bw: BufferedWriter = BufferedWriter(osw)
+                    var texto: String = ""
+                    for (empresa in listas.supermercados) {
+                        texto += empresa.toString()
+                        texto += "\n"
+                    }
+                    bw.write(texto)
+                    bw.close()
+                    Toast.makeText(this,"gravou o mercadin", Toast.LENGTH_LONG).show()
+
+                }catch(e : IOException){
+                    Toast.makeText(this,"erro:" + e.toString(), Toast.LENGTH_LONG).show()
+                }catch(e : FileNotFoundException){
+                    Toast.makeText(this,"erro:" + e.toString(), Toast.LENGTH_LONG).show()
+                }
+
+        }
 
     }
 
@@ -214,12 +359,12 @@ class MainActivity : AppCompatActivity() {
 
                     //println(it.getParcelableArrayExtra("modifiedData"))
 
-                    val estudante1: ArrayList<Supermercado>? = it.getParcelableArrayListExtra("modifiedDataSuper")
-                    Log.i("TESTE","Veio de T2: "+estudante1)
+                    val supermercado: ArrayList<Supermercado>? = it.getParcelableArrayListExtra("modifiedDataSuper")
+                    Log.i("TESTE","Veio de T2: "+supermercado)
 
                     println("entrei")
-                    if (estudante1 != null) {
-                        listaSupermercado= estudante1
+                    if (supermercado != null) {
+                        listaSupermercado= supermercado
                     }
 
                     println(listaSupermercado)

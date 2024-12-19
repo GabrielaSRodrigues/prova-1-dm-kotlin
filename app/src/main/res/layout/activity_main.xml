@@ -148,6 +148,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="lista de cinemas" />
+
+            <Button
+                android:id="@+id/buttonSaveFiles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Salvar dados em arquivo" />
+            <Button
+                android:id="@+id/buttonMostrarArquivos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mostrar arquivos" />
+
+
+            <TextView
+                android:id="@+id/tvFiles"
+                android:layout_width="match_parent"
+                android:layout_height="128dp" />
         </LinearLayout>
     </ScrollView>
 
